@@ -58,7 +58,7 @@ class MazeGenerator:
                 neighbors.append((x, y+1))
             if x > 0 and not self.grid[y][x-1].visited:
                 neighbors.append((x-1, y))
-            
+
             if neighbors:
                 next_x, next_y = random.choice(neighbors)
                 current = self.grid[y][x]
@@ -79,8 +79,7 @@ class MazeGenerator:
                 stack.append((next_x, next_y))
             else:
                 stack.pop()
-                
-                
+
                 
 #    N
 #  W   E
