@@ -95,7 +95,7 @@ class MazeGenerator:
                 queue.append((x-1, y))
                 visited.add((x-1, y))
                 parent[(x-1, y)] = ((x, y), "W")
-        
+
         path = []
         current = exit
         while current != entry:
@@ -134,3 +134,8 @@ class MazeGenerator:
 #    N
 #  W   E
 #    S
+
+
+# (0,0) (1,0) (2,0)
+# (0,1) (1,1) (2,1)
+# (0,2) (1,2) (2,2)
