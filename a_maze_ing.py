@@ -107,7 +107,7 @@ def main() -> None:
     perfect: bool = config["PERFECT"]
 
     show_path: bool = False
-    animation_speed: float = 0.03
+    animation_speed: float = 0.04
     pattern_color: str = "yellow"
     wall_color: str = "white"
     algorithm: str = "backtracking"
@@ -152,7 +152,7 @@ def main() -> None:
                                            delay=animation_speed)
             elif algorithm == 'prims':
                 maze.generate_prims(entry, display=display,
-                                    animate=True, delay=animation_speed)
+                                    delay=animation_speed)
 
             maze.reset_visited()
 
@@ -232,7 +232,7 @@ def main() -> None:
                     maze.generate_backtracking(entry, display=display,
                                                delay=animation_speed)
                 elif algorithm == 'prims':
-                    maze.generate_prims(entry, display=display, animate=True,
+                    maze.generate_prims(entry, display=display,
                                         delay=animation_speed)
 
                 maze.reset_visited()
@@ -248,7 +248,7 @@ def main() -> None:
                 clear_screen()
                 print(f"Maze regenerated with {algorithm.upper()}!\n")
                 display.display_ascii(maze.grid, entry, exit_,
-                                      maze.pattern_cells, path=None,
+                                      maze.pattern_cells, path,
                                       show_generation=False)
             else:
                 clear_screen()

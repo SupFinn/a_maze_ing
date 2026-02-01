@@ -202,7 +202,6 @@ class MazeGenerator:
                 if display is not None:
                     from maze_display import MazeDisplay
                     MazeDisplay.clear_screen()
-                    print("Generating maze with Prim's Algorithm...\n")
                     display.display_ascii(
                         self.grid,
                         start,
