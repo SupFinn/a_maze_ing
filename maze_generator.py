@@ -166,7 +166,7 @@ class MazeGenerator:
 
     def generate_prims(self,
                        start: Tuple[int, int],
-                       display=None,
+                       display: Optional[MazeDisplay] = None,
                        delay: float = 0.02) -> None:
 
         start_x, start_y = start

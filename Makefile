@@ -28,7 +28,7 @@ lint:
 	flake8 .
 	@echo ""
 	@echo "Running mypy..."
-	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	@mypy . --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 	@echo ""
 	@echo "Linting complete!"
 

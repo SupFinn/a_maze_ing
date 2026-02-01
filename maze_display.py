@@ -77,9 +77,9 @@ class MazeDisplay:
     def clear_screen() -> None:
         os.system('clear')
 
-    def path_to_cells(self, 
-                     entry: Tuple[int, int], 
-                     path: str) -> Set[Tuple[int, int]]:
+    def path_to_cells(self,
+                      entry: Tuple[int, int],
+                      path: str) -> Set[Tuple[int, int]]:
         x, y = entry
         cells: Set[Tuple[int, int]] = {(x, y)}
 
@@ -95,16 +95,17 @@ class MazeDisplay:
             cells.add((x, y))
 
         return cells
-        
+
     def display_ascii(self,
-                    grid: list,
-                    entry: Tuple[int, int],
-                    exit: Tuple[int, int],
-                    pattern_cells: Set[Tuple[int, int]],
-                    path: Optional[str] = None,
-                    highlight: Optional[Tuple[int, int]] = None,
-                    show_generation: bool = True,
-                    visited_cells: Optional[Set[Tuple[int, int]]] = None) -> None:
+                      grid: list,
+                      entry: Tuple[int, int],
+                      exit: Tuple[int, int],
+                      pattern_cells: Set[Tuple[int, int]],
+                      path: Optional[str] = None,
+                      highlight: Optional[Tuple[int, int]] = None,
+                      show_generation: bool = True,
+                      visited_cells: Optional[Set[Tuple[int, int]]] = None
+                      ) -> None:
         path_cells: Set[Tuple[int, int]] = set()
         if path:
             path_cells = self.path_to_cells(entry, path)
@@ -116,7 +117,7 @@ class MazeDisplay:
         for y in range(self.height):
             for x in range(self.width):
                 cell = grid[y][x]
-                
+
                 if cell.west:
                     print(f"{self.colors['wall']}|{self.RESET}", end="")
                 else:

@@ -1,4 +1,5 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
+
 
 def read_config(filename: str) -> Dict[str, Any]:
     config: Dict[str, Any] = {}
