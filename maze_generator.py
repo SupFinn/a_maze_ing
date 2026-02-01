@@ -14,15 +14,19 @@ class Cell:
         self.west: bool = True
         self.visited: bool = False
 
+
 class MazeGenerator:
-    def __init__(self, width: int, height: int, seed: Optional[int] = None) -> None:
+    def __init__(self,
+                 width: int,
+                 height: int,
+                 seed: Optional[int] = None) -> None:
         self.width: int = width
         self.height: int = height
         self.pattern_cells: Set[Tuple[int, int]] = set()
-        
+
         if seed is not None:
             random.seed(seed)
-            
+
         self.grid: list = []
         for y in range(self.height):
             row: list = []
@@ -38,7 +42,7 @@ class MazeGenerator:
             "  # #  ",
             "  # ###"
         ]
-        
+
         pattern_height = len(pattern)
         pattern_width = len(pattern[0])
 
@@ -56,44 +60,44 @@ class MazeGenerator:
                 if char == '#':
                     maze_x = start_x + col_num
                     maze_y = start_y + row_num
-                    
+
                     cell = self.grid[maze_y][maze_x]
                     cell.north = True
                     cell.east = True
                     cell.south = True
                     cell.west = True
                     cell.visited = True
-                    
+
                     self.pattern_cells.add((maze_x, maze_y))
-        
+
         return True
 
-    def generate_backtracking(self, 
-                            entry: Tuple[int, int],
-                            display: Optional[MazeDisplay] = None,
-                            delay: float = 0.05) -> None:
+    def generate_backtracking(self,
+                              entry: Tuple[int, int],
+                              display: Optional[MazeDisplay] = None,
+                              delay: float = 0.05) -> None:
         entry_x, entry_y = entry
         start_cell = self.grid[entry_y][entry_x]
         start_cell.visited = True
 
         stack: list = [(entry_x, entry_y)]
-        
+
         while stack:
             x, y = stack[-1]
             neighbors: list = []
-            
+
             if y > 0 and not self.grid[y-1][x].visited:
                 if (x, y-1) not in self.pattern_cells:
                     neighbors.append((x, y-1))
-                    
+
             if x < self.width - 1 and not self.grid[y][x+1].visited:
                 if (x+1, y) not in self.pattern_cells:
                     neighbors.append((x+1, y))
-                    
+
             if y < self.height - 1 and not self.grid[y+1][x].visited:
                 if (x, y+1) not in self.pattern_cells:
                     neighbors.append((x, y+1))
-                    
+
             if x > 0 and not self.grid[y][x-1].visited:
                 if (x-1, y) not in self.pattern_cells:
                     neighbors.append((x-1, y))
@@ -102,7 +106,7 @@ class MazeGenerator:
                 next_x, next_y = random.choice(neighbors)
                 current = self.grid[y][x]
                 neighbor = self.grid[next_y][next_x]
-                
+
                 if next_y < y:
                     current.north = False
                     neighbor.south = False
@@ -118,75 +122,161 @@ class MazeGenerator:
 
                 neighbor.visited = True
                 stack.append((next_x, next_y))
-                
+
                 if display is not None:
                     display.clear_screen()
-                    display.display_ascii(self.grid, entry, entry, 
-                                        self.pattern_cells, 
-                                        highlight=(next_x, next_y),
-                                        show_generation=True)
+                    display.display_ascii(self.grid, entry, entry,
+                                          self.pattern_cells,
+                                          highlight=(next_x, next_y),
+                                          show_generation=True)
                     time.sleep(delay)
             else:
                 stack.pop()
 
+    def _get_neighbors(self, x: int, y: int) -> list:
+        neighbors = []
+
+        if y > 0 and (x, y-1) not in self.pattern_cells:
+            neighbors.append((x, y-1))
+        if x < self.width - 1 and (x+1, y) not in self.pattern_cells:
+            neighbors.append((x+1, y))
+        if y < self.height - 1 and (x, y+1) not in self.pattern_cells:
+            neighbors.append((x, y+1))
+        if x > 0 and (x-1, y) not in self.pattern_cells:
+            neighbors.append((x-1, y))
+
+        return neighbors
+
+    def _remove_wall(self, x1: int, y1: int, x2: int, y2: int) -> None:
+        cell1 = self.grid[y1][x1]
+        cell2 = self.grid[y2][x2]
+
+        if y2 < y1:
+            cell1.north = False
+            cell2.south = False
+        elif y2 > y1:
+            cell1.south = False
+            cell2.north = False
+        elif x2 > x1:
+            cell1.east = False
+            cell2.west = False
+        elif x2 < x1:
+            cell1.west = False
+            cell2.east = False
+
+    def generate_prims(self,
+                       start: Tuple[int, int],
+                       display=None,
+                       delay: float = 0.02) -> None:
+
+        start_x, start_y = start
+        visited = set()
+        frontier = []
+
+        self.grid[start_y][start_x].visited = True
+        visited.add((start_x, start_y))
+
+        for neighbor in self._get_neighbors(start_x, start_y):
+            if neighbor not in frontier:
+                frontier.append(neighbor)
+
+        while frontier:
+            current_x, current_y = random.choice(frontier)
+            frontier.remove((current_x, current_y))
+
+            neighbors = self._get_neighbors(current_x, current_y)
+            visited_neighbors = [n for n in neighbors if n in visited]
+
+            if visited_neighbors:
+                neighbor_x, neighbor_y = random.choice(visited_neighbors)
+
+                self._remove_wall(current_x, current_y, neighbor_x, neighbor_y)
+
+                self.grid[current_y][current_x].visited = True
+                visited.add((current_x, current_y))
+
+                for nx, ny in neighbors:
+                    if (nx, ny) not in visited and (nx, ny) not in frontier:
+                        frontier.append((nx, ny))
+
+                if display is not None:
+                    from maze_display import MazeDisplay
+                    MazeDisplay.clear_screen()
+                    print("Generating maze with Prim's Algorithm...\n")
+                    display.display_ascii(
+                        self.grid,
+                        start,
+                        start,
+                        self.pattern_cells,
+                        highlight=(current_x, current_y),
+                        show_generation=True
+                    )
+                    time.sleep(delay)
 
     def reset_visited(self) -> None:
         for y in range(self.height):
             for x in range(self.width):
                 self.grid[y][x].visited = False
 
+    def solve_bfs(self,
+                  entry: Tuple[int, int],
+                  exit: Tuple[int, int],
+                  display: Optional[MazeDisplay] = None,
+                  delay: float = 0.05) -> str:
+        queue: deque = deque()
+        queue.append(entry)
 
-    def solve_bfs(self, entry: Tuple[int, int], exit: Tuple[int, int],
-                display: Optional[MazeDisplay] = None,
-                delay: float = 0.05) -> str:
-            queue: deque = deque()
-            queue.append(entry)
+        visited: Set[Tuple[int, int]] = set()
+        visited.add(entry)
+        parent: Dict[Tuple[int, int], Tuple[Tuple[int, int], str]] = {}
 
-            visited: Set[Tuple[int, int]] = set()
-            visited.add(entry)
-            parent: Dict[Tuple[int, int], Tuple[Tuple[int, int], str]] = {}
+        while queue:
+            x, y = queue.popleft()
+            cell = self.grid[y][x]
 
-            while queue:
-                x, y = queue.popleft()
-                cell = self.grid[y][x]
+            if display is not None:
+                display.clear_screen()
+                display.display_ascii(self.grid,
+                                      entry,
+                                      exit,
+                                      self.pattern_cells,
+                                      highlight=(x, y),
+                                      show_generation=False,
+                                      visited_cells=visited)
+                time.sleep(delay)
 
-                if display is not None:
-                    display.clear_screen()
-                    display.display_ascii(self.grid, entry, exit, 
-                                        self.pattern_cells,
-                                        highlight=(x, y),
-                                        show_generation=False,
-                                        visited_cells=visited)
-                    time.sleep(delay)
-                
-                if (x, y) == exit:
-                    break
-                if y > 0 and not cell.north and (x, y-1) not in visited:
-                    queue.append((x, y-1))
-                    visited.add((x, y-1))
-                    parent[(x, y-1)] = ((x, y), "N")
-                if x < self.width - 1 and not cell.east and (x+1, y) not in visited:
-                    queue.append((x+1, y))
-                    visited.add((x+1, y))
-                    parent[(x+1, y)] = ((x, y), "E")
-                if y < self.height - 1 and not cell.south and (x, y+1) not in visited:
-                    queue.append((x, y+1))
-                    visited.add((x, y+1))
-                    parent[(x, y+1)] = ((x, y), "S")
-                if x > 0 and not cell.west and (x-1, y) not in visited:
-                    queue.append((x-1, y))
-                    visited.add((x-1, y))
-                    parent[(x-1, y)] = ((x, y), "W")
+            if (x, y) == exit:
+                break
+            if y > 0 and not cell.north and (x, y-1) not in visited:
+                queue.append((x, y-1))
+                visited.add((x, y-1))
+                parent[(x, y-1)] = ((x, y), "N")
+            if (x < self.width - 1 and
+                not cell.east and
+               (x+1, y) not in visited):
+                queue.append((x+1, y))
+                visited.add((x+1, y))
+                parent[(x+1, y)] = ((x, y), "E")
+            if (y < self.height - 1 and
+                not cell.south and
+               (x, y+1) not in visited):
+                queue.append((x, y+1))
+                visited.add((x, y+1))
+                parent[(x, y+1)] = ((x, y), "S")
+            if x > 0 and not cell.west and (x-1, y) not in visited:
+                queue.append((x-1, y))
+                visited.add((x-1, y))
+                parent[(x-1, y)] = ((x, y), "W")
 
-            path: list = []
-            current = exit
-            while current != entry:
-                if current not in parent:
-                    return ""
-                current, direction = parent[current]
-                path.append(direction)
-            path.reverse()
-            return "".join(path)
+        path: list = []
+        current = exit
+        while current != entry:
+            if current not in parent:
+                return ""
+            current, direction = parent[current]
+            path.append(direction)
+        path.reverse()
+        return "".join(path)
 
     def write_maze_hex(self,
                        filename: str,
@@ -218,7 +308,7 @@ class MazeGenerator:
             for x in range(self.width):
                 if (x, y) in self.pattern_cells:
                     continue
-                    
+
                 if random.random() < chance:
                     cell = self.grid[y][x]
                     direction = random.choice(["N", "E", "S", "W"])

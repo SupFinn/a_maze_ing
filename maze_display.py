@@ -1,13 +1,11 @@
 from typing import Tuple, Optional, Set
-import sys
 import os
 
 
 class MazeDisplay:
-    
     # ANSI color codes
     RESET = "\033[0m"
-    
+
     # Foreground colors
     RED = "\033[91m"
     GREEN = "\033[92m"
@@ -17,7 +15,7 @@ class MazeDisplay:
     CYAN = "\033[96m"
     WHITE = "\033[97m"
     GRAY = "\033[90m"
-    
+
     # Background colors (normal)
     BG_RED = "\033[41m"
     BG_GREEN = "\033[42m"
@@ -27,7 +25,7 @@ class MazeDisplay:
     BG_CYAN = "\033[46m"
     BG_WHITE = "\033[47m"
     BG_GRAY = "\033[100m"
-    
+
     # Background colors (bright)
     BG_BRIGHT_BLACK = "\033[100m"
     BG_BRIGHT_RED = "\033[101m"
@@ -37,7 +35,7 @@ class MazeDisplay:
     BG_BRIGHT_MAGENTA = "\033[105m"
     BG_BRIGHT_CYAN = "\033[106m"
     BG_BRIGHT_WHITE = "\033[107m"
-    
+
     def __init__(self, width: int, height: int) -> None:
         self.width: int = width
         self.height: int = height
@@ -56,7 +54,7 @@ class MazeDisplay:
     def set_color(self, element: str, color: str) -> None:
         if element in self.colors:
             self.colors[element] = color
-    
+
     def set_pattern_color(self, color_name: str) -> None:
         color_map = {
             'cyan': self.BG_BRIGHT_CYAN,

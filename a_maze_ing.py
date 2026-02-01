@@ -29,14 +29,32 @@ def get_user_choice() -> str:
     return choice
 
 
+def choose_algorithm(current: str) -> str:
+    """Let user choose maze generation algorithm."""
+    print(f"\nCurrent algorithm: {current.upper()}")
+    print("\nAvailable algorithms:")
+    print("  1. Backtracking (DFS) - Long winding corridors")
+    print("  2. Prim's Algorithm - Branching tree-like structure")
+    
+    choice = input("\nChoose algorithm (1-2): ").strip()
+    
+    if choice == '1':
+        return 'backtracking'
+    elif choice == '2':
+        return 'prims'
+    else:
+        print("Invalid choice. Keeping current algorithm.")
+        return current
+
 def choose_perfect_mode(current: bool) -> bool:
+    """Let user toggle perfect/imperfect maze mode."""
     print(f"\nCurrent mode: {'PERFECT' if current else 'IMPERFECT'}")
     print("\nChoose maze type:")
     print("  1. Perfect (only one solution path)")
-    print("  2. Imperfect (multiple paths possible)")
-
+    print("  2. Imperfect (multiple paths - breaks random walls)")
+    
     choice = input("\nChoose mode (1-2): ").strip()
-
+    
     if choice == '1':
         return True
     elif choice == '2':
@@ -95,6 +113,7 @@ def main() -> None:
     animation_speed: float = 0.02
     pattern_color: str = "yellow"
     wall_color: str = "white"
+    algorithm: str = "backtracking"
     
     display = MazeDisplay(width, height)
     display.set_pattern_color(pattern_color)
@@ -131,12 +150,17 @@ def main() -> None:
 
             maze = MazeGenerator(width, height)
             maze.add_42_pattern()
-            maze.generate_backtracking(entry, display=display, delay=animation_speed)
+            
+            # Use current algorithm
+            if algorithm == 'backtracking':
+                maze.generate_backtracking(entry, display=display, delay=animation_speed)
+            elif algorithm == 'prims':
+                maze.generate_prims(entry, display=display, animate=True, delay=animation_speed)
+            
             maze.reset_visited()
             
             if not perfect:
                 maze.break_walls(chance=0.1)
-            
 
             print("\nSolving maze...\n")
             path = maze.solve_bfs(entry, exit_, display=display, delay=animation_speed)
@@ -195,30 +219,84 @@ def main() -> None:
                                 show_generation=False)
 
         elif choice == '5':
-            pass
-
-        elif choice == '6':
-            current = perfect
-            new_perfect = choose_perfect_mode(perfect)
-            if new_perfect != perfect:
-                perfect = new_perfect
+            new_algorithm = choose_algorithm(algorithm)
+            
+            if new_algorithm != algorithm:
+                algorithm = new_algorithm
+                
                 clear_screen()
-                print("Regenerating maze...\n")
-                print(f"Mode: {'PERFECT' if perfect else 'IMPERFECT'} maze\n")
+                print(f"Regenerating maze with {algorithm.upper()} algorithm...\n")
+                
+                # Generate new maze with selected algorithm
                 maze = MazeGenerator(width, height)
                 maze.add_42_pattern()
-                maze.generate_backtracking(entry, display=display, delay=animation_speed)
+                
+                if algorithm == 'backtracking':
+                    maze.generate_backtracking(entry, display=display, delay=animation_speed)
+                elif algorithm == 'prims':
+                    maze.generate_prims(entry, display=display, animate=True, delay=animation_speed)
+                
                 maze.reset_visited()
                 
                 if not perfect:
                     maze.break_walls(chance=0.1)
                 
+                # Solve with animation
                 print("\nSolving maze...\n")
                 path = maze.solve_bfs(entry, exit_, display=display, delay=animation_speed)
                 maze.write_maze_hex(output, entry, exit_, path)
                 
                 clear_screen()
-                print(f"Maze regenerated as {'PERFECT' if perfect else 'IMPERFECT'}!\n")
+                print(f"Maze regenerated with {algorithm.upper()}!\n")
+                display.display_ascii(maze.grid, entry, exit_, maze.pattern_cells,
+                                    path=None,
+                                    show_generation=False)
+            else:
+                clear_screen()
+                print("Algorithm unchanged.\n")
+                display.display_ascii(maze.grid, entry, exit_, maze.pattern_cells,
+                                    path if show_path else None,
+                                    show_generation=False)
+
+        elif choice == '6':
+            new_perfect = choose_perfect_mode(perfect)
+            
+            if new_perfect != perfect:
+                perfect = new_perfect
+                
+                if not perfect:
+                    clear_screen()
+                    print("Breaking random walls to create multiple paths...\n")
+                    maze.break_walls(chance=0.1)
+                    
+                    maze.reset_visited()
+                    print("Re-solving maze...\n")
+                    path = maze.solve_bfs(entry, exit_, display=display, delay=animation_speed)
+                    maze.write_maze_hex(output, entry, exit_, path)
+                    
+                    clear_screen()
+                    print("Maze is now IMPERFECT (multiple paths exist)!\n")
+                else:
+                    clear_screen()
+                    print("Regenerating maze as PERFECT...\n")
+                    
+                    maze = MazeGenerator(width, height)
+                    maze.add_42_pattern()
+                    
+                    if algorithm == 'backtracking':
+                        maze.generate_backtracking(entry, display=display, delay=animation_speed)
+                    elif algorithm == 'prims':
+                        maze.generate_prims(entry, display=display, delay=animation_speed)
+                    
+                    maze.reset_visited()
+                    
+                    print("\nSolving maze...\n")
+                    path = maze.solve_bfs(entry, exit_, display=display, delay=animation_speed)
+                    maze.write_maze_hex(output, entry, exit_, path)
+                    
+                    clear_screen()
+                    print("Maze is now PERFECT (only one path)!\n")
+                
                 display.display_ascii(maze.grid, entry, exit_, maze.pattern_cells,
                                     path if show_path else None,
                                     show_generation=False)
@@ -227,10 +305,7 @@ def main() -> None:
                 print("Mode unchanged.\n")
                 display.display_ascii(maze.grid, entry, exit_, maze.pattern_cells,
                                     path if show_path else None,
-                                    show_generation=False)      
-                
-                
-
+                                    show_generation=False)
 
         elif choice == 'q':
             clear_screen()
