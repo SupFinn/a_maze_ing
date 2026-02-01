@@ -8,13 +8,15 @@ from maze_display import MazeDisplay
 
 def clear_screen() -> None:
     print("\033[2J\033[H", end="")
-    os.system("clear")
+    # os.system("clear")
+    print("\033[H", flush=True)
 
 
 def display_menu() -> None:
-    print("\n" + "="*50)
-    print(" "*16 + "MAZE CONTROL MENU")
-    print("="*50)
+    print("\n" + "\033[91m=\033[0m"*50)
+    print(" "*16 + "\033[41m MAZE CONTROL MENU \033[0m")
+    print("\033[91m=\033[0m"*50)
+    # print("\033[92m", end="")
     print("  1. Re-generate maze")
     print("  2. Show/Hide solution path")
     print("  3. Change wall colors")
@@ -22,7 +24,7 @@ def display_menu() -> None:
     print("  5. Change maze generation algorithms")
     print("  6. Perfect (True or False)")
     print("  q. Quit")
-    print("="*50)
+    print("\033[91m=\033[0m"*50)
 
 
 def get_user_choice() -> str:

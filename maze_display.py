@@ -41,14 +41,14 @@ class MazeDisplay:
         self.height: int = height
 
         self.colors = {
-            'entry': self.GREEN,
-            'exit': self.RED,
+            'entry': self.BG_GREEN,
+            'exit': self.BG_RED,
             'highlight': self.BG_BRIGHT_MAGENTA,
             'pattern': self.BG_BRIGHT_YELLOW,
             'path': self.YELLOW,
             'wall': self.CYAN,
             'unvisited': self.BG_GRAY,
-            'search': self.CYAN
+            'search': self.MAGENTA
         }
 
     def set_color(self, element: str, color: str) -> None:
@@ -75,7 +75,8 @@ class MazeDisplay:
 
     @staticmethod
     def clear_screen() -> None:
-        os.system('clear')
+        # os.system('clear')
+        print("\033[H", flush=True)
 
     def path_to_cells(self,
                       entry: Tuple[int, int],
@@ -134,9 +135,9 @@ class MazeDisplay:
                 elif show_generation and not cell.visited:
                     print(f"{self.colors['unvisited']}   {self.RESET}", end="")
                 elif visited_cells and (x, y) in visited_cells:
-                    print(f"{self.colors['search']} # {self.RESET}", end="")
+                    print(f"{self.colors['search']} * {self.RESET}", end="")
                 elif path and (x, y) in path_cells:
-                    print(f"{self.colors['path']} # {self.RESET}", end="")
+                    print(f"{self.colors['path']} * {self.RESET}", end="")
                 else:
                     print("   ", end="")
 
