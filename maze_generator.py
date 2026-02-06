@@ -3,7 +3,7 @@ from collections import deque
 import random
 import time
 from maze_display import MazeDisplay
-import os
+
 
 class Cell:
     def __init__(self) -> None:

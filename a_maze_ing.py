@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import sys
 import os
 from config_validation import read_config, validation
@@ -10,7 +9,8 @@ def clear_screen() -> None:
     print("\033[2J\033[H", end="")
     os.system("clear")
 
-def set_color(color: str):
+
+def set_color(color: str) -> str:
     colors = {
         'reset': "\033[0m",
         'red': "\033[91m",
@@ -20,9 +20,10 @@ def set_color(color: str):
         'magenta': "\033[95m",
         'cyan': "\033[96m",
         'white': "\033[97m",
-        'gray': "\033[90m"        
+        'gray': "\033[90m"
     }
-    return colors[color.lower()]
+    return colors.get(color.lower(), colors['reset'])
+
 
 def display_menu() -> None:
     print("\n" + "="*50)
@@ -107,7 +108,7 @@ def main() -> None:
     perfect: bool = config["PERFECT"]
 
     show_path: bool = False
-    animation_speed: float = 0.04
+    animation_speed: float = 0.03
     pattern_color: str = "yellow"
     wall_color: str = "white"
     algorithm: str = "backtracking"
@@ -257,7 +258,6 @@ def main() -> None:
                                       maze.pattern_cells,
                                       path if show_path else None,
                                       show_generation=False)
-
 
         elif choice == 'q':
             clear_screen()

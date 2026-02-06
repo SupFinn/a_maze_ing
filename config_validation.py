@@ -13,25 +13,32 @@ def read_config(filename: str) -> Dict[str, Any]:
 
                 if "=" not in line:
                     raise ValueError(f"Invalid line (missing '='): {line}")
-                key, value = line.split('=', 1)
+
+                key, raw_value = line.split("=", 1)
+                value: Any = raw_value
+
                 if key == "WIDTH" or key == "HEIGHT":
-                    value = int(value)
+                    value = int(raw_value)
+
                 elif key == "ENTRY" or key == "EXIT":
-                    parts = value.split(",")
+                    parts = raw_value.split(",")
                     if len(parts) != 2:
                         raise ValueError(f"{key} must be in format x,y")
                     value = tuple(int(p) for p in parts)
+
                 elif key == "PERFECT":
-                    raw = value.strip().lower()
+                    raw = raw_value.strip().lower()
                     if raw == "true":
                         value = True
                     elif raw == "false":
                         value = False
                     else:
                         raise ValueError("PERFECT must be True or False")
+
                 config[key] = value
+
     except FileNotFoundError:
-        raise FileNotFoundError(f"{config_file} File Not Found...")
+        raise FileNotFoundError(f"{filename} File Not Found...")
 
     return config
 
