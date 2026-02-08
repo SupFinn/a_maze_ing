@@ -3,6 +3,8 @@ from collections import deque
 import random
 import time
 from mazegen.maze_display import MazeDisplay, Cell
+import sys
+import os
 
 
 class MazeGenerator:
@@ -13,8 +15,7 @@ class MazeGenerator:
         self.width: int = width
         self.height: int = height
         self.pattern_cells: Set[Tuple[int, int]] = set()
-        self.random = random.random(seed)
-
+        self.random = random.Random(seed)
 
         self.grid: List[List[Cell]] = []
         for y in range(self.height):
@@ -36,7 +37,12 @@ class MazeGenerator:
         pattern_width = len(pattern[0])
 
         if self.width < pattern_width + 2 or self.height < pattern_height + 2:
-            print("Warning: Maze too small to add '42' pattern.")
+            print("Warning: Maze too small for '42' pattern. \n")
+            answer = input("Continuing without it? [Yes/No]: ")
+            if answer.lower() == "yes":
+                os.system("clear")
+            elif answer.lower() == "no":
+                sys.exit()
             return False
 
         start_x = (self.width - pattern_width) // 2
