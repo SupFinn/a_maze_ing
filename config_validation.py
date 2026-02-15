@@ -59,8 +59,9 @@ def read_config(filename: str) -> Dict[str, Any]:
 
                 config[key] = value
 
-    except FileNotFoundError:
-        raise FileNotFoundError(f"{filename} not found")
+    except Exception as e:
+        print(f"Catched a {type(e).__name__}: {e}")
+        exit(1)
 
     return config
 
@@ -68,57 +69,65 @@ def read_config(filename: str) -> Dict[str, Any]:
 def validation(config: Dict[str, Any]) -> None:
     """Validate configuration parameters and check for errors."""
     required_keys: List[str] = [
-        "WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"
+        "WIDTH",
+        "HEIGHT",
+        "ENTRY",
+        "EXIT",
+        "OUTPUT_FILE",
+        "PERFECT",
     ]
 
     optional_keys: List[str] = ["SEED"]
+    try:
+        for key in required_keys:
+            if key not in config:
+                raise ValueError(f"Missing required config key: {key}")
 
-    for key in required_keys:
-        if key not in config:
-            raise ValueError(f"Missing required config key: {key}")
+        for key in config:
+            if key not in required_keys and key not in optional_keys:
+                raise ValueError(f"Unknown config key: {key}")
 
-    for key in config:
-        if key not in required_keys and key not in optional_keys:
-            raise ValueError(f"Unknown config key: {key}")
+        width = config["WIDTH"]
+        height = config["HEIGHT"]
+        entry = config["ENTRY"]
+        exit_ = config["EXIT"]
+        output_file = config["OUTPUT_FILE"]
 
-    width = config["WIDTH"]
-    height = config["HEIGHT"]
-    entry = config["ENTRY"]
-    exit_ = config["EXIT"]
-    output_file = config["OUTPUT_FILE"]
+        if not isinstance(width, int) or not isinstance(height, int):
+            raise ValueError("WIDTH and HEIGHT must be integers")
 
-    if not isinstance(width, int) or not isinstance(height, int):
-        raise ValueError("WIDTH and HEIGHT must be integers")
+        if width <= 0 or height <= 0:
+            raise ValueError("WIDTH and HEIGHT must be greater than 0")
 
-    if width <= 0 or height <= 0:
-        raise ValueError("WIDTH and HEIGHT must be greater than 0")
+        if not isinstance(entry, tuple) or not isinstance(exit_, tuple):
+            raise ValueError("ENTRY and EXIT must be tuples")
 
-    if not isinstance(entry, tuple) or not isinstance(exit_, tuple):
-        raise ValueError("ENTRY and EXIT must be tuples")
+        if len(entry) != 2 or len(exit_) != 2:
+            raise ValueError("ENTRY and EXIT must contain exactly 2 values")
 
-    if len(entry) != 2 or len(exit_) != 2:
-        raise ValueError("ENTRY and EXIT must contain exactly 2 values")
+        x1, y1 = entry
+        x2, y2 = exit_
 
-    x1, y1 = entry
-    x2, y2 = exit_
+        if not (0 <= x1 < width and 0 <= y1 < height):
+            raise ValueError(f"ENTRY {entry} is outside maze bounds")
 
-    if not (0 <= x1 < width and 0 <= y1 < height):
-        raise ValueError(f"ENTRY {entry} is outside maze bounds")
+        if not (0 <= x2 < width and 0 <= y2 < height):
+            raise ValueError(f"EXIT {exit_} is outside maze bounds")
 
-    if not (0 <= x2 < width and 0 <= y2 < height):
-        raise ValueError(f"EXIT {exit_} is outside maze bounds")
+        if entry == exit_:
+            raise ValueError("ENTRY and EXIT cannot be the same")
 
-    if entry == exit_:
-        raise ValueError("ENTRY and EXIT cannot be the same")
+        if not isinstance(output_file, str) or not output_file.strip():
+            raise ValueError("OUTPUT_FILE must be a non-empty string")
 
-    if not isinstance(output_file, str) or not output_file.strip():
-        raise ValueError("OUTPUT_FILE must be a non-empty string")
+        if "SEED" in config:
+            seed = config["SEED"]
+            if not isinstance(seed, int):
+                raise ValueError("SEED must be an integer")
 
-    if "SEED" in config:
-        seed = config["SEED"]
-        if not isinstance(seed, int):
-            raise ValueError("SEED must be an integer")
-
-    perfect = config["PERFECT"]
-    if not isinstance(perfect, bool):
-        raise ValueError("PERFECT must be True or False")
+        perfect = config["PERFECT"]
+        if not isinstance(perfect, bool):
+            raise ValueError("PERFECT must be True or False")
+    except Exception as e:
+        print(f"Catched a {type(e).__name__}: {e}")
+        exit(1)
