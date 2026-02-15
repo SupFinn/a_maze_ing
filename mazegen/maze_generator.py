@@ -305,32 +305,27 @@ class MazeGenerator:
                     continue
 
                 if self.random.random() < chance:
-                    cell = self.grid[y][x]
                     direction = self.random.choice(["N", "E", "S", "W"])
 
                     if direction == "N" and y > 0:
                         if (x, y-1) not in self.pattern_cells:
                             if not self._large_open_area(x, y, x, y-1):
-                                cell.north = False
-                                self.grid[y-1][x].south = False
+                                self._remove_wall(x, y, x, y-1)
 
                     elif direction == "S" and y < self.height - 1:
                         if (x, y+1) not in self.pattern_cells:
                             if not self._large_open_area(x, y, x, y+1):
-                                cell.south = False
-                                self.grid[y+1][x].north = False
+                                self._remove_wall(x, y, x, y+1)
 
                     elif direction == "E" and x < self.width - 1:
                         if (x+1, y) not in self.pattern_cells:
                             if not self._large_open_area(x, y, x+1, y):
-                                cell.east = False
-                                self.grid[y][x+1].west = False
+                                self._remove_wall(x, y, x+1, y)
 
                     elif direction == "W" and x > 0:
                         if (x-1, y) not in self.pattern_cells:
                             if not self._large_open_area(x, y, x-1, y):
-                                cell.west = False
-                                self.grid[y][x-1].east = False
+                                self._remove_wall(x, y, x-1, y)
 
     def _large_open_area(self, x1: int, y1: int, x2: int, y2: int) -> bool:
         """
