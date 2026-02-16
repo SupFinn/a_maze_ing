@@ -111,8 +111,8 @@ The project is structured as a package (mazegen), separating logic from the exec
 
 ### 👨‍💼 **Roles**
 
-* **mlakhlil** 🧠: Focused heavily on the core algorithmic logic. Implemented the **Backtracking** and **Prim's** generation algorithms and handled the primary visualization logic for the grid.  
-* **rhssayn** 🎨: Focused on the **User Experience** and specific constraints. Implemented the hardcoded **"42" pattern**, the **BFS Pathfinding** algorithm, the animation delays, and the interactive menu system (changing colors, toggling paths).
+* **mlakhlil** 🧠: Focused heavily on the core algorithmic logic. Implemented the **Backtracking** generation algorithm, the hardcoded "42" pattern, and handled the primary visualization logic for the grid.  
+* **rhssayn** 🎨: Focused on the **User Experience** and specific constraints. Implemented the **Prim's* generation algorithms, *the **BFS Pathfinding** algorithm, the animation delays, and the interactive menu system (changing colors, toggling paths).
 
 ### 📅 **Planning & Evolution**
 
